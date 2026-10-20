@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Colaborador — Integra+</title>
+  <link rel="icon" href="assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="topo"></header>
+  <div class="app">
+    <nav id="menuLateral"></nav>
+    <main class="conteudo">
+      <div class="conteudo-interno conteudo-medio" id="pagina"></div>
+    </main>
+  </div>
+  <nav id="navInferior"></nav>
+
+  <!-- Indicar curso -->
+  <dialog class="modal" id="modalIndicarCurso" aria-labelledby="tituloIndicarCurso">
+    <div class="modal-topo">
+      <div>
+        <h2 id="tituloIndicarCurso">Indicar um curso</h2>
+        <p class="subtitulo">Aparece em "Meus cursos" da pessoa, com o acompanhamento.</p>
+      </div>
+      <button class="btn-fechar" data-fechar-modal aria-label="Fechar"><span data-icone="fechar"></span></button>
+    </div>
+    <form class="modal-corpo" id="formIndicarCurso">
+      <div class="campo">
+        <label for="tituloCursoIndicado">Nome do curso</label>
+        <input id="tituloCursoIndicado" name="titulo" required placeholder="Ex.: Excel avançado para relatórios">
+      </div>
+      <div class="campo">
+        <label for="linkCursoIndicado">Link</label>
+        <input id="linkCursoIndicado" name="link" type="url" required placeholder="https://www.youtube.com/watch?v=...">
+      </div>
+      <button class="btn btn-primario btn-bloco" type="submit">Indicar curso</button>
+    </form>
+  </dialog>
+
+  <script src="js/icones.js"></script>
+  <script src="js/dados.js"></script>
+  <script src="js/comum.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/ia.js"></script>
+  <script src="js/cursos-externos.js"></script>
+  <script src="js/gestor-acoes.js"></script>
+  <script src="js/pessoa.js"></script>
+</body>
+</html>

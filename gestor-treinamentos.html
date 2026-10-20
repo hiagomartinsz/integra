@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Treinamentos — Integra+</title>
+  <link rel="icon" href="assets/logo.png">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+  <header id="topo"></header>
+  <div class="app">
+    <nav id="menuLateral"></nav>
+    <main class="conteudo">
+      <div class="conteudo-interno conteudo-medio" id="pagina"></div>
+    </main>
+  </div>
+  <nav id="navInferior"></nav>
+
+  <!-- Novo treinamento -->
+  <dialog class="modal" id="modalTreinamento" aria-labelledby="tituloModalTreinamento">
+    <div class="modal-topo">
+      <div>
+        <h2 id="tituloModalTreinamento">Novo treinamento</h2>
+        <p class="subtitulo">Envie um arquivo ou cole um link. Ele é liberado para cada pessoa quando ela chega na fase escolhida.</p>
+      </div>
+      <button class="btn-fechar" data-fechar-modal aria-label="Fechar"><span data-icone="fechar"></span></button>
+    </div>
+    <form class="modal-corpo" id="formTreinamento">
+      <div class="campo">
+        <label for="tituloTreinamento">Título</label>
+        <input id="tituloTreinamento" name="titulo" required placeholder="Ex.: Treinamento admissional">
+      </div>
+      <div class="campo">
+        <label for="descricaoTreinamento">Descrição</label>
+        <input id="descricaoTreinamento" name="descricao" placeholder="Do que se trata, em uma frase">
+      </div>
+
+      <fieldset class="campo">
+        <legend>Formato</legend>
+        <div class="opcoes-formato" id="opcoesFormato"></div>
+      </fieldset>
+
+      <div class="campo" id="campoArquivo">
+        <label for="arquivoTreinamento">Arquivo</label>
+        <label class="area-envio" for="arquivoTreinamento">
+          <span data-icone="upload"></span>
+          <span id="nomeArquivo">Clique para escolher um arquivo</span>
+          <small id="dicaArquivo"></small>
+        </label>
+        <input id="arquivoTreinamento" name="arquivo" type="file" class="so-leitor">
+      </div>
+      <div class="campo" id="campoLink">
+        <label for="linkTreinamento" id="rotuloLink">Ou cole um link</label>
+        <input id="linkTreinamento" name="link" type="url" placeholder="https://">
+      </div>
+
+      <div class="linha-campos">
+        <div class="campo">
+          <label for="faseTreinamento">Liberar a partir da fase</label>
+          <select id="faseTreinamento" name="fase"></select>
+        </div>
+        <div class="campo campo-checkbox">
+          <label class="checkbox-simples"><input type="checkbox" name="obrigatorio" checked> Obrigatório</label>
+        </div>
+      </div>
+
+      <p class="erro-formulario" id="erroTreinamento" hidden></p>
+      <button class="btn btn-primario btn-bloco" type="submit" id="salvarTreinamento">Publicar treinamento</button>
+    </form>
+  </dialog>
+
+  <!-- Confirmar remoção -->
+  <dialog class="modal modal-pequeno" id="modalRemover" aria-labelledby="tituloRemover">
+    <div class="modal-corpo">
+      <h2 id="tituloRemover">Remover treinamento?</h2>
+      <p class="subtitulo" id="textoRemover"></p>
+      <div class="acoes-modal">
+        <button class="btn btn-secundario" data-fechar-modal>Cancelar</button>
+        <button class="btn btn-perigo" id="confirmarRemover">Remover</button>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="js/icones.js"></script>
+  <script src="js/dados.js"></script>
+  <script src="js/comum.js"></script>
+  <script src="js/layout.js"></script>
+  <script src="js/arquivos.js"></script>
+  <script src="js/cursos-externos.js"></script>
+  <script src="js/gestor-treinamentos.js"></script>
+</body>
+</html>
