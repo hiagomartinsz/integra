@@ -253,7 +253,7 @@ function htmlCheckins() {
 
 function renderizar() {
   const resumo = resumoParaGestor(dados, pessoa);
-  document.title = `${pessoa.nome} — Integra+`;
+  document.title = `${pessoa.nome} — Integra`;
   pagina.innerHTML = `
     ${htmlCabecalho(resumo)}
     <div class="coluna">

@@ -125,7 +125,7 @@ function renderizar() {
   const fase = fasesComPeriodo(dados).find((f) => f.id === treinamento.faseId);
   const formato = FORMATOS_TREINAMENTO[treinamento.formato];
   const temArquivo = treinamento.fonte.tipo === 'arquivo' || (treinamento.fonte.tipo === 'url' && /\.pdf$/i.test(treinamento.fonte.url));
-  document.title = `${treinamento.titulo} — Integra+`;
+  document.title = `${treinamento.titulo} — Integra`;
 
   if (info && !info.liberado) {
     pagina.innerHTML = `

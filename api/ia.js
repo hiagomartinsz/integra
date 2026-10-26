@@ -14,7 +14,7 @@ const MODELOS = [
 // erros temporários (sobrecarga, cota, falha do servidor) e modelo indisponível para a conta
 const TENTAR_OUTRO = new Set([404, 429, 500, 503, 504]);
 
-const INSTRUCOES = `Você é a assistente de integração do Integra+, uma plataforma que acompanha pessoas recém-contratadas nos primeiros meses na empresa.
+const INSTRUCOES = `Você é a assistente de integração do Integra, uma plataforma que acompanha pessoas recém-contratadas nos primeiros meses na empresa.
 
 Um colaborador escreveu uma dúvida ou dificuldade. Seu trabalho:
 1. Entender o que a pessoa precisa.

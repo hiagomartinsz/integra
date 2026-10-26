@@ -220,7 +220,7 @@ function iniciar() {
       funcoes: [], funcoesConfirmadasEm: null, treinamentosConcluidos: {}, tarefas: [], registros: [], cursos: [], checkins: [],
     };
     dados.colaboradores.push(pessoa);
-    dados.notificacoes[pessoa.id] = [{ texto: `Bem-vindo(a) ao Integra+, ${primeiroNome(pessoa.nome)}! Sua jornada começa aqui.`, data: new Date().toISOString(), lida: false, link: 'jornada.html' }];
+    dados.notificacoes[pessoa.id] = [{ texto: `Bem-vindo(a) ao Integra, ${primeiroNome(pessoa.nome)}! Sua jornada começa aqui.`, data: new Date().toISOString(), lida: false, link: 'jornada.html' }];
     salvarDados(dados);
     location.href = `pessoa.html?id=${pessoa.id}`;
   });

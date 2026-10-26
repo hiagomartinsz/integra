@@ -75,6 +75,6 @@ http.createServer((req, res) => {
   res.writeHead(405);
   res.end();
 }).listen(PORTA, () => {
-  console.log(`Integra+ rodando em http://localhost:${PORTA}`);
+  console.log(`Integra rodando em http://localhost:${PORTA}`);
   if (!process.env.GEMINI_API_KEY) console.warn('Atenção: GEMINI_API_KEY não definida. A IA vai usar o modo simulado (palavras-chave).');
 });

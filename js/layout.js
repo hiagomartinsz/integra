@@ -51,7 +51,7 @@ function montarLayout({ dados, perfil, pagina, pessoa = null }) {
     <div class="topo-marca">
       <a class="marca" href="${ehGestor ? 'gestor.html' : 'colaborador.html'}">
         <span class="marca-logo"><img src="assets/logo.png" alt=""></span>
-        Integra<span class="marca-mais">+</span>
+        Integra
       </a>
       ${ehGestor ? '<span class="pilula-topo">Painel do Gestor</span>' : ''}
     </div>
