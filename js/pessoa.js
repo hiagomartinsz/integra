@@ -57,11 +57,67 @@ function htmlUltimosDias(tarefa) {
   for (let d = 6; d >= 0; d--) {
     const dia = diasAPartirDeHoje(-d);
     const antes = dia < tarefa.criadaEm;
+    const folga = !rotinaNoDia(tarefa, dia);
     const feita = tarefa.feitas.includes(dia);
-    const estado = antes ? 'vazio' : feita ? 'feito' : d === 0 ? 'hoje' : 'perdido';
-    dias.push(`<span class="dia-ponto ${estado}" title="${formatarData(dia, true)}: ${antes ? 'antes da tarefa existir' : feita ? 'feita' : d === 0 ? 'ainda não feita hoje' : 'não feita'}"></span>`);
+    const estado = antes ? 'vazio' : feita ? 'feito' : folga ? 'folga' : d === 0 ? 'hoje' : 'perdido';
+    const legenda = antes ? 'antes da tarefa existir' : feita ? 'feita' : folga ? 'não programada para este dia' : d === 0 ? 'ainda não feita hoje' : 'não feita';
+    dias.push(`<span class="dia-ponto ${estado}" title="${formatarData(dia, true)}: ${legenda}"></span>`);
   }
   return `<span class="ultimos-dias" aria-label="Últimos 7 dias">${dias.join('')}</span>`;
+}
+
+const DIAS_UTEIS = [1, 2, 3, 4, 5];
+let tarefaEmEdicao = null; // id da tarefa aberta no lápis
+
+function diasMarcados(formulario) {
+  return [...formulario.querySelectorAll('[name="dias"]:checked')].map((caixa) => Number(caixa.value));
+}
+
+function resumoDosDias(dias) {
+  if (!dias.length) return 'Escolha pelo menos um dia';
+  return dias.length === 7 ? 'Todos os dias' : descricaoDosDias({ dias });
+}
+
+// sem "dias" na tarefa = todos os dias
+function diasParaSalvar(dias) {
+  return dias.length < 7 ? dias : undefined;
+}
+
+function htmlDiasSemana(marcados) {
+  return `
+    <fieldset class="dias-semana">
+      <legend class="so-leitor">Dias da semana</legend>
+      <span class="dias-semana-rotulo">Repete:</span>
+      ${DIAS_DA_SEMANA.map((d) => `
+        <label class="dia-semana">
+          <input type="checkbox" name="dias" value="${d.numero}" ${marcados.includes(d.numero) ? 'checked' : ''}>
+          <span>${d.curto}</span>
+        </label>`).join('')}
+      <span class="dias-semana-resumo">${resumoDosDias(marcados)}</span>
+    </fieldset>`;
+}
+
+function htmlEdicaoDeTarefa(tarefa) {
+  const campo = tarefa.tipo === 'rotina'
+    ? htmlDiasSemana(tarefa.dias || DIAS_DA_SEMANA.map((d) => d.numero))
+    : `<label class="campo-prazo">Prazo <input name="prazo" type="date" value="${tarefa.prazo}" required></label>`;
+  return `
+    <li class="editando">
+      <form class="form-editar-tarefa" data-editar-tarefa="${tarefa.id}">
+        <span class="lista-gestao-texto">${escaparHtml(tarefa.titulo)}</span>
+        ${campo}
+        <div class="acoes-edicao">
+          <button class="btn btn-secundario btn-pequeno" type="button" data-cancelar-edicao>Cancelar</button>
+          <button class="btn btn-primario btn-pequeno" type="submit">${icone('check')}Salvar</button>
+        </div>
+      </form>
+    </li>`;
+}
+
+function botoesDaTarefa(tarefa) {
+  return `
+    <button class="btn-fechar" data-editar-tarefa-id="${tarefa.id}" aria-label="Editar tarefa">${icone('lapis')}</button>
+    <button class="btn-fechar" data-remover-tarefa="${tarefa.id}" aria-label="Remover tarefa">${icone('lixeira')}</button>`;
 }
 
 function htmlTarefas(resumo) {
@@ -73,7 +129,7 @@ function htmlTarefas(resumo) {
       <div class="cabecalho-cartao">
         <div>
           <h2 class="titulo-cartao titulo-com-icone">${icone('lista')}Tarefas</h2>
-          <p class="subtitulo">Rotinas aparecem todo dia no checklist. Pontuais têm prazo.${resumo.assiduidade !== null ? ` Rotina feita em <strong>${resumo.assiduidade}%</strong> dos dias na última semana.` : ''}</p>
+          <p class="subtitulo">Rotinas aparecem no checklist todos os dias ou só nos dias escolhidos. Pontuais têm prazo.${resumo.assiduidade !== null ? ` Rotina feita em <strong>${resumo.assiduidade}%</strong> dos dias na última semana.` : ''}</p>
         </div>
       </div>
       ${avisoDeModulo('checklist')}
@@ -82,28 +138,30 @@ function htmlTarefas(resumo) {
         <label class="so-leitor" for="tituloTarefa">Nova tarefa</label>
         <input id="tituloTarefa" name="titulo" placeholder="Nova tarefa para ${primeiroNome(pessoa.nome)}..." required>
         <select name="tipo" aria-label="Tipo">
-          <option value="rotina">Rotina diária</option>
+          <option value="rotina">Rotina</option>
           <option value="pontual">Pontual</option>
         </select>
         <input name="prazo" type="date" aria-label="Prazo" hidden>
         <button class="btn btn-primario btn-pequeno" type="submit">${icone('mais')}Atribuir</button>
+        ${htmlDiasSemana(DIAS_UTEIS)}
       </form>
 
       ${rotinas.length ? `
-        <h3 class="subtitulo-bloco">Rotina diária</h3>
+        <h3 class="subtitulo-bloco">Rotina</h3>
         <ul class="lista-gestao">
-          ${rotinas.map((t) => `
+          ${rotinas.map((t) => (t.id === tarefaEmEdicao ? htmlEdicaoDeTarefa(t) : `
             <li>
-              <span class="lista-gestao-texto">${escaparHtml(t.titulo)}</span>
+              <span class="lista-gestao-texto">${escaparHtml(t.titulo)}<br><small>${descricaoDosDias(t)}</small></span>
               ${htmlUltimosDias(t)}
-              <button class="btn-fechar" data-remover-tarefa="${t.id}" aria-label="Remover tarefa">${icone('lixeira')}</button>
-            </li>`).join('')}
+              ${botoesDaTarefa(t)}
+            </li>`)).join('')}
         </ul>` : ''}
 
       ${pontuais.length ? `
         <h3 class="subtitulo-bloco">Pontuais</h3>
         <ul class="lista-gestao">
           ${pontuais.map((t) => {
+            if (t.id === tarefaEmEdicao) return htmlEdicaoDeTarefa(t);
             let selo;
             if (t.concluidaEm) selo = `<span class="selo selo-sucesso">${icone('check')}Feita em ${formatarData(t.concluidaEm, true)}</span>`;
             else if (t.prazo < dataISO()) selo = `<span class="selo selo-atencao">Atrasada · ${formatarData(t.prazo, true)}</span>`;
@@ -112,7 +170,7 @@ function htmlTarefas(resumo) {
               <li>
                 <span class="lista-gestao-texto">${escaparHtml(t.titulo)}</span>
                 ${selo}
-                <button class="btn-fechar" data-remover-tarefa="${t.id}" aria-label="Remover tarefa">${icone('lixeira')}</button>
+                ${botoesDaTarefa(t)}
               </li>`;
           }).join('')}
         </ul>` : ''}
@@ -277,9 +335,16 @@ function iniciar() {
   renderizar();
   configurarRespostas(dados, renderizar);
 
-  // o campo de prazo só aparece para tarefas pontuais
+  // rotina mostra os dias da semana (todos marcados = todos os dias); pontual mostra o prazo
   pagina.addEventListener('change', (evento) => {
-    if (evento.target.name !== 'tipo' || evento.target.form.id !== 'formTarefa') return;
+    const formulario = evento.target.form;
+    if (!formulario) return;
+    if (evento.target.name === 'dias') {
+      formulario.querySelector('.dias-semana-resumo').textContent = resumoDosDias(diasMarcados(formulario));
+      return;
+    }
+    if (evento.target.name !== 'tipo' || formulario.id !== 'formTarefa') return;
+    evento.target.form.querySelector('.dias-semana').hidden = evento.target.value !== 'rotina';
     const prazo = evento.target.form.prazo;
     prazo.hidden = evento.target.value !== 'pontual';
     prazo.required = !prazo.hidden;
@@ -292,14 +357,46 @@ function iniciar() {
       evento.preventDefault();
       const tipo = formulario.tipo.value;
       const tarefa = { id: novoId('t'), titulo: formulario.titulo.value.trim(), tipo, criadaEm: dataISO() };
-      if (tipo === 'rotina') tarefa.feitas = [];
-      else Object.assign(tarefa, { prazo: formulario.prazo.value, concluidaEm: null });
+      if (tipo === 'rotina') {
+        const dias = diasMarcados(formulario);
+        if (!dias.length) {
+          mostrarAviso('Escolha pelo menos um dia da semana.', 'alerta');
+          return;
+        }
+        tarefa.feitas = [];
+        if (diasParaSalvar(dias)) tarefa.dias = dias;
+      } else {
+        Object.assign(tarefa, { prazo: formulario.prazo.value, concluidaEm: null });
+      }
       pessoa.tarefas.push(tarefa);
       notificar(dados, pessoa.id, `Nova tarefa${tipo === 'rotina' ? ' de rotina' : ''}: ${tarefa.titulo}.`, 'colaborador.html#checklist');
       salvarDados(dados);
       renderizar();
       document.getElementById('tituloTarefa').focus();
       mostrarAviso(`Tarefa atribuída a ${primeiroNome(pessoa.nome)}.`);
+    }
+    if (formulario.dataset.editarTarefa) {
+      evento.preventDefault();
+      const tarefa = pessoa.tarefas.find((t) => t.id === formulario.dataset.editarTarefa);
+      let mudanca;
+      if (tarefa.tipo === 'rotina') {
+        const dias = diasMarcados(formulario);
+        if (!dias.length) {
+          mostrarAviso('Escolha pelo menos um dia da semana.', 'alerta');
+          return;
+        }
+        if (diasParaSalvar(dias)) tarefa.dias = dias;
+        else delete tarefa.dias;
+        mudanca = tarefa.dias ? descricaoDosDias(tarefa) : 'todos os dias';
+      } else {
+        tarefa.prazo = formulario.prazo.value;
+        mudanca = `prazo até ${formatarData(tarefa.prazo, true)}`;
+      }
+      notificar(dados, pessoa.id, `Tarefa atualizada: ${tarefa.titulo} (${mudanca}).`, 'colaborador.html#checklist');
+      tarefaEmEdicao = null;
+      salvarDados(dados);
+      renderizar();
+      mostrarAviso('Tarefa atualizada.');
     }
     if (formulario.id === 'formFuncao') {
       evento.preventDefault();
@@ -312,6 +409,15 @@ function iniciar() {
   });
 
   pagina.addEventListener('click', (evento) => {
+    const editar = evento.target.closest('[data-editar-tarefa-id]');
+    if (editar) {
+      tarefaEmEdicao = editar.dataset.editarTarefaId;
+      renderizar();
+    }
+    if (evento.target.closest('[data-cancelar-edicao]')) {
+      tarefaEmEdicao = null;
+      renderizar();
+    }
     const tarefa = evento.target.closest('[data-remover-tarefa]');
     if (tarefa) {
       pessoa.tarefas = pessoa.tarefas.filter((t) => t.id !== tarefa.dataset.removerTarefa);

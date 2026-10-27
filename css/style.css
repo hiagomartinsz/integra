@@ -997,7 +997,14 @@ a.metrica:hover { border-color: var(--turquesa); }
 .atalhos a:hover { color: var(--turquesa-escuro); background: var(--turquesa-claro); }
 
 .form-linha { display: grid; grid-template-columns: minmax(0, 1fr) 150px 150px auto; gap: 8px; align-items: center; padding: 10px; border-radius: 12px; background: var(--fundo); }
-.form-linha input[hidden] { display: none; }
+.form-linha input[hidden], .form-linha fieldset[hidden] { display: none; }
+.dias-semana { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 0; padding: 0; border: 0; }
+.dias-semana-rotulo { margin-right: 2px; font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.dias-semana-resumo { margin-left: 6px; font-size: 13px; color: var(--texto-suave); }
+.dia-semana input { position: absolute; opacity: 0; pointer-events: none; }
+.dia-semana span { display: block; min-width: 48px; padding: 6px 10px; border: 1px solid var(--borda-forte); border-radius: 999px; font-size: 13px; font-weight: 600; text-align: center; color: var(--texto-suave); background: var(--superficie); cursor: pointer; }
+.dia-semana input:checked + span { color: var(--turquesa-escuro); border-color: var(--turquesa); background: var(--turquesa-claro); }
+.dia-semana input:focus-visible + span { box-shadow: var(--foco); }
 .form-funcao { display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 8px; align-items: center; margin-top: 8px; padding: 10px; border-radius: 12px; background: var(--fundo); }
 
 .lista-gestao li { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--borda); }
@@ -1006,12 +1013,20 @@ a.metrica:hover { border-color: var(--turquesa); }
 a.lista-gestao-texto { font-weight: 500; }
 a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
 .lista-gestao-texto small { color: var(--texto-suave); }
+.lista-gestao .btn-fechar + .btn-fechar { margin-left: -8px; }
+.lista-gestao li.editando { display: block; }
+.form-editar-tarefa { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 10px; border-radius: 12px; background: var(--fundo); }
+.form-editar-tarefa .lista-gestao-texto { flex-basis: 100%; font-weight: 600; }
+.form-editar-tarefa .dias-semana { flex: 1; }
+.campo-prazo { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--texto-2); }
+.acoes-edicao { display: flex; gap: 8px; margin-left: auto; }
 
 .ultimos-dias { display: flex; gap: 4px; }
 .dia-ponto { width: 12px; height: 12px; border-radius: 4px; background: #EEF1F5; }
 .dia-ponto.feito { background: var(--turquesa); }
 .dia-ponto.perdido { background: var(--laranja-claro); border: 1px solid #FDBA74; }
 .dia-ponto.hoje { background: #fff; border: 1.5px dashed var(--borda-forte); }
+.dia-ponto.folga { background: transparent; border: 1px solid var(--borda); }
 
 .lista-checkins li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--borda); }
 .lista-checkins li:last-child { border-bottom: 0; }
@@ -1214,6 +1229,7 @@ a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
   .form-linha, .form-funcao { grid-template-columns: 1fr 1fr; }
   .form-linha > input[name="titulo"], .form-funcao > input[name="titulo"], .form-funcao > input[name="descricao"] { grid-column: 1 / -1; }
   .form-linha .btn, .form-funcao .btn { grid-column: 1 / -1; }
+  .form-linha .btn { order: 1; }
 
   .opcoes-formato { grid-template-columns: repeat(2, 1fr); }
   .modulos-config { grid-template-columns: 1fr; }

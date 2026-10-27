@@ -109,7 +109,7 @@ function trilhaDeFases(situacao) {
 function itemTarefa(tarefa, { editavel = true } = {}) {
   const feita = tarefaFeitaHoje(tarefa);
   const selos = [];
-  if (tarefa.tipo === 'rotina') selos.push('<span class="selo selo-rotina">Rotina diária</span>');
+  if (tarefa.tipo === 'rotina') selos.push(`<span class="selo selo-rotina">${descricaoDosDias(tarefa)}</span>`);
   if (tarefa.tipo === 'pontual' && !feita) {
     const dias = diferencaEmDias(dataISO(), tarefa.prazo);
     if (dias < 0) selos.push(`<span class="selo selo-atencao">${icone('alerta')}Atrasada</span>`);

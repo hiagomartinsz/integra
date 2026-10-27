@@ -582,6 +582,30 @@ function treinamentosDaPessoa(dados, colaborador) {
 
 // checklist
 
+// dias da semana no padrão do Date.getDay() (0 = domingo), começando pela segunda
+const DIAS_DA_SEMANA = [
+  { numero: 1, curto: 'Seg' },
+  { numero: 2, curto: 'Ter' },
+  { numero: 3, curto: 'Qua' },
+  { numero: 4, curto: 'Qui' },
+  { numero: 5, curto: 'Sex' },
+  { numero: 6, curto: 'Sáb' },
+  { numero: 0, curto: 'Dom' },
+];
+
+// rotina sem "dias" vale para todos os dias da semana
+function rotinaNoDia(tarefa, dataIso) {
+  if (!tarefa.dias) return true;
+  return tarefa.dias.includes(new Date(dataIso + 'T00:00:00').getDay());
+}
+
+// "Rotina diária" ou, por exemplo, "Seg, Qua e Sex"
+function descricaoDosDias(tarefa) {
+  if (!tarefa.dias) return 'Rotina diária';
+  const nomes = DIAS_DA_SEMANA.filter((d) => tarefa.dias.includes(d.numero)).map((d) => d.curto);
+  return nomes.length > 1 ? `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}` : nomes[0];
+}
+
 function tarefaFeitaHoje(tarefa) {
   if (tarefa.tipo === 'rotina') return tarefa.feitas.includes(dataISO());
   return Boolean(tarefa.concluidaEm);
@@ -589,7 +613,7 @@ function tarefaFeitaHoje(tarefa) {
 
 function tarefasDeHoje(colaborador) {
   const hoje = dataISO();
-  return colaborador.tarefas.filter((t) => t.tipo === 'rotina' || !t.concluidaEm || t.concluidaEm === hoje);
+  return colaborador.tarefas.filter((t) => (t.tipo === 'rotina' ? rotinaNoDia(t, hoje) : !t.concluidaEm || t.concluidaEm === hoje));
 }
 
 function marcarTarefa(tarefa, feita) {
@@ -602,7 +626,7 @@ function marcarTarefa(tarefa, feita) {
   }
 }
 
-// percentual de dias em que a rotina foi feita nos últimos 7 dias (sem contar hoje)
+// percentual de dias em que a rotina foi feita nos últimos 7 dias (sem contar hoje e os dias fora da programação)
 function assiduidadeDaRotina(colaborador) {
   const rotinas = colaborador.tarefas.filter((t) => t.tipo === 'rotina');
   if (!rotinas.length) return null;
@@ -611,7 +635,7 @@ function assiduidadeDaRotina(colaborador) {
   for (let d = 1; d <= 7; d++) {
     const dia = diasAPartirDeHoje(-d);
     rotinas.forEach((t) => {
-      if (dia < t.criadaEm) return;
+      if (dia < t.criadaEm || !rotinaNoDia(t, dia)) return;
       possiveis += 1;
       if (t.feitas.includes(dia)) feitas += 1;
     });
