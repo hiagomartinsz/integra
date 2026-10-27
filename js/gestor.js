@@ -47,7 +47,7 @@ function htmlTabela(resumos) {
       <div class="tabela-rolagem">
         <table class="tabela">
           <thead>
-            <tr><th>Pessoa</th><th>Jornada</th><th>Checklist hoje</th><th>Treinamentos</th><th>Situação</th></tr>
+            <tr><th>Pessoa</th><th>Jornada</th><th>Tarefas hoje</th><th>Treinamentos</th><th>Situação</th></tr>
           </thead>
           <tbody>
             ${visiveis.map(({ pessoa, resumo }) => {

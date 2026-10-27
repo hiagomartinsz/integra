@@ -13,8 +13,8 @@ const MODULOS = {
     icone: 'maleta',
   },
   checklist: {
-    nome: 'Checklist de rotina',
-    descricao: 'Tarefas diárias e pontuais atribuídas pelo gestor.',
+    nome: 'Tarefas',
+    descricao: 'Checklist com as tarefas de rotina e pontuais atribuídas pelo gestor.',
     icone: 'lista',
   },
   duvidas: {

@@ -45,7 +45,7 @@ function htmlCabecalho(resumo) {
       </div>
       ${resumo.motivos.length ? `<ul class="lista-motivos">${resumo.motivos.map((m) => `<li>${icone('alerta')}${m}</li>`).join('')}</ul>` : ''}
       <nav class="atalhos" aria-label="Seções">
-        <a href="#tarefas">Tarefas</a><a href="#funcoes">Funções</a><a href="#treinamentos">Treinamentos</a><a href="#duvidas">Dúvidas e cursos</a><a href="#checkins">Check-ins</a>
+        <a href="#funcoes">Funções</a><a href="#tarefas">Tarefas</a><a href="#treinamentos">Treinamentos</a><a href="#duvidas">Dúvidas e cursos</a><a href="#checkins">Check-ins</a>
       </nav>
     </section>`;
 }
@@ -67,7 +67,9 @@ function htmlUltimosDias(tarefa) {
 }
 
 const DIAS_UTEIS = [1, 2, 3, 4, 5];
-let tarefaEmEdicao = null; // id da tarefa aberta no lápis
+// itens abertos no lápis (só um por vez)
+let tarefaEmEdicao = null;
+let funcaoEmEdicao = null;
 
 function diasMarcados(formulario) {
   return [...formulario.querySelectorAll('[name="dias"]:checked')].map((caixa) => Number(caixa.value));
@@ -104,7 +106,7 @@ function htmlEdicaoDeTarefa(tarefa) {
   return `
     <li class="editando">
       <form class="form-editar-tarefa" data-editar-tarefa="${tarefa.id}">
-        <span class="lista-gestao-texto">${escaparHtml(tarefa.titulo)}</span>
+        <input name="titulo" value="${escaparHtml(tarefa.titulo)}" required aria-label="Nome da tarefa">
         ${campo}
         <div class="acoes-edicao">
           <button class="btn btn-secundario btn-pequeno" type="button" data-cancelar-edicao>Cancelar</button>
@@ -129,7 +131,7 @@ function htmlTarefas(resumo) {
       <div class="cabecalho-cartao">
         <div>
           <h2 class="titulo-cartao titulo-com-icone">${icone('lista')}Tarefas</h2>
-          <p class="subtitulo">Rotinas aparecem no checklist todos os dias ou só nos dias escolhidos. Pontuais têm prazo.${resumo.assiduidade !== null ? ` Rotina feita em <strong>${resumo.assiduidade}%</strong> dos dias na última semana.` : ''}</p>
+          <p class="subtitulo">Rotinas aparecem nas tarefas do colaborador todos os dias ou só nos dias escolhidos. Pontuais têm prazo.${resumo.assiduidade !== null ? ` Rotina feita em <strong>${resumo.assiduidade}%</strong> dos dias na última semana.` : ''}</p>
         </div>
       </div>
       ${avisoDeModulo('checklist')}
@@ -194,11 +196,22 @@ function htmlFuncoes() {
       ${avisoDeModulo('funcoes')}
       ${pessoa.funcoes.length ? `
         <ol class="lista-funcoes editavel">
-          ${pessoa.funcoes.map((f) => `
+          ${pessoa.funcoes.map((f) => (f.id === funcaoEmEdicao ? `
+            <li>
+              <form class="form-editar-funcao" data-editar-funcao="${f.id}">
+                <input name="titulo" value="${escaparHtml(f.titulo)}" required aria-label="Função">
+                <input name="descricao" value="${escaparHtml(f.descricao)}" placeholder="O que a pessoa faz nessa função" aria-label="Descrição">
+                <div class="acoes-edicao">
+                  <button class="btn btn-secundario btn-pequeno" type="button" data-cancelar-edicao>Cancelar</button>
+                  <button class="btn btn-primario btn-pequeno" type="submit">${icone('check')}Salvar</button>
+                </div>
+              </form>
+            </li>` : `
             <li>
               <span><strong>${escaparHtml(f.titulo)}</strong><span>${escaparHtml(f.descricao)}</span></span>
+              <button class="btn-fechar" data-editar-funcao-id="${f.id}" aria-label="Editar função">${icone('lapis')}</button>
               <button class="btn-fechar" data-remover-funcao="${f.id}" aria-label="Remover função">${icone('lixeira')}</button>
-            </li>`).join('')}
+            </li>`)).join('')}
         </ol>` : '<p class="texto-vazio">Nenhuma função definida ainda.</p>'}
       <form class="form-funcao" id="formFuncao">
         <input name="titulo" placeholder="Função (ex.: Atendimento a clientes)" required aria-label="Função">
@@ -315,8 +328,8 @@ function renderizar() {
   pagina.innerHTML = `
     ${htmlCabecalho(resumo)}
     <div class="coluna">
-      ${htmlTarefas(resumo)}
       ${htmlFuncoes()}
+      ${htmlTarefas(resumo)}
       ${htmlTreinamentos()}
       ${htmlDuvidas()}
       ${htmlCheckins()}
@@ -378,6 +391,7 @@ function iniciar() {
     if (formulario.dataset.editarTarefa) {
       evento.preventDefault();
       const tarefa = pessoa.tarefas.find((t) => t.id === formulario.dataset.editarTarefa);
+      tarefa.titulo = formulario.titulo.value.trim();
       let mudanca;
       if (tarefa.tipo === 'rotina') {
         const dias = diasMarcados(formulario);
@@ -398,6 +412,20 @@ function iniciar() {
       renderizar();
       mostrarAviso('Tarefa atualizada.');
     }
+    if (formulario.dataset.editarFuncao) {
+      evento.preventDefault();
+      const funcao = pessoa.funcoes.find((f) => f.id === formulario.dataset.editarFuncao);
+      const titulo = formulario.titulo.value.trim();
+      const descricao = formulario.descricao.value.trim();
+      if (titulo !== funcao.titulo || descricao !== funcao.descricao) {
+        Object.assign(funcao, { titulo, descricao });
+        pessoa.funcoesConfirmadasEm = null; // mudou: a pessoa precisa confirmar de novo
+      }
+      funcaoEmEdicao = null;
+      salvarDados(dados);
+      renderizar();
+      mostrarAviso('Função atualizada.');
+    }
     if (formulario.id === 'formFuncao') {
       evento.preventDefault();
       pessoa.funcoes.push({ id: novoId('fn'), titulo: formulario.titulo.value.trim(), descricao: formulario.descricao.value.trim() });
@@ -412,10 +440,18 @@ function iniciar() {
     const editar = evento.target.closest('[data-editar-tarefa-id]');
     if (editar) {
       tarefaEmEdicao = editar.dataset.editarTarefaId;
+      funcaoEmEdicao = null;
+      renderizar();
+    }
+    const editarFuncao = evento.target.closest('[data-editar-funcao-id]');
+    if (editarFuncao) {
+      funcaoEmEdicao = editarFuncao.dataset.editarFuncaoId;
+      tarefaEmEdicao = null;
       renderizar();
     }
     if (evento.target.closest('[data-cancelar-edicao]')) {
       tarefaEmEdicao = null;
+      funcaoEmEdicao = null;
       renderizar();
     }
     const tarefa = evento.target.closest('[data-remover-tarefa]');

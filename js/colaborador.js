@@ -125,7 +125,7 @@ function htmlChecklist() {
     <section class="cartao" id="checklist">
       <div class="checklist-topo">
         <div>
-          <h2 class="titulo-cartao titulo-com-icone">${icone('lista')}Checklist de hoje</h2>
+          <h2 class="titulo-cartao titulo-com-icone">${icone('lista')}Tarefas de hoje</h2>
           <p class="subtitulo">${dataDeHojeExtenso()}</p>
         </div>
         <div class="checklist-progresso">

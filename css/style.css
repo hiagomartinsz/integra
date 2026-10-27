@@ -1016,7 +1016,8 @@ a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
 .lista-gestao .btn-fechar + .btn-fechar { margin-left: -8px; }
 .lista-gestao li.editando { display: block; }
 .form-editar-tarefa { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; padding: 10px; border-radius: 12px; background: var(--fundo); }
-.form-editar-tarefa .lista-gestao-texto { flex-basis: 100%; font-weight: 600; }
+.form-editar-tarefa input[name="titulo"] { flex-basis: 100%; }
+.form-editar-funcao { flex: 1; display: grid; grid-template-columns: 1fr 1.4fr auto; gap: 8px; align-items: center; }
 .form-editar-tarefa .dias-semana { flex: 1; }
 .campo-prazo { display: flex; align-items: center; gap: 8px; font-size: 13px; font-weight: 600; color: var(--texto-2); }
 .acoes-edicao { display: flex; gap: 8px; margin-left: auto; }
@@ -1227,6 +1228,7 @@ a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
   .metrica-valor { font-size: 24px; }
 
   .form-linha, .form-funcao { grid-template-columns: 1fr 1fr; }
+  .form-editar-funcao { grid-template-columns: 1fr; }
   .form-linha > input[name="titulo"], .form-funcao > input[name="titulo"], .form-funcao > input[name="descricao"] { grid-column: 1 / -1; }
   .form-linha .btn, .form-funcao .btn { grid-column: 1 / -1; }
   .form-linha .btn { order: 1; }
