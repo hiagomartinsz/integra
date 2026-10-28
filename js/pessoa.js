@@ -11,11 +11,10 @@ function avisoDeModulo(modulo) {
   const situacao = situacaoNaJornada(dados, pessoa);
   if (situacao.concluido) return '';
   const proxima = situacao.fases.find((f) => f.inicioDia > situacao.dia && f.modulos.includes(modulo));
+  if (!proxima && modulo === 'funcoes') return ''; // funções já apresentadas: não precisa avisar
   const texto = proxima
     ? `Aparece para ${primeiroNome(pessoa.nome)} a partir da fase ${proxima.nome} (${formatarData(somarDias(pessoa.inicio, proxima.inicioDia - 1), true)}). Você já pode preparar.`
-    : modulo === 'funcoes'
-      ? `${primeiroNome(pessoa.nome)} já passou da fase de apresentação e consulta as funções em "Minha jornada".`
-      : `Não está ligado na fase atual de ${primeiroNome(pessoa.nome)}.`;
+    : `Não está ligado na fase atual de ${primeiroNome(pessoa.nome)}.`;
   return `<p class="aviso-modulo pequeno">${icone('relogio')}${texto}</p>`;
 }
 
@@ -32,7 +31,7 @@ function htmlCabecalho(resumo) {
     <a class="voltar" href="gestor.html"><span class="seta-voltar">${icone('seta')}</span>Painel</a>
     <section class="cartao cabecalho-pessoa">
       <div class="cabecalho-pessoa-topo">
-        <span class="avatar avatar-grande">${iniciais(pessoa.nome)}</span>
+        <span class="avatar avatar-grande">${conteudoDoAvatar(pessoa)}</span>
         <div>
           <h1>${pessoa.nome}</h1>
           <p class="subtitulo">${pessoa.cargo} · começou em ${formatarData(pessoa.inicio)}</p>
@@ -52,18 +51,20 @@ function htmlCabecalho(resumo) {
 
 // tarefas
 
-function htmlUltimosDias(tarefa) {
-  const dias = [];
-  for (let d = 6; d >= 0; d--) {
-    const dia = diasAPartirDeHoje(-d);
-    const antes = dia < tarefa.criadaEm;
-    const folga = !rotinaNoDia(tarefa, dia);
-    const feita = tarefa.feitas.includes(dia);
-    const estado = antes ? 'vazio' : feita ? 'feito' : folga ? 'folga' : d === 0 ? 'hoje' : 'perdido';
-    const legenda = antes ? 'antes da tarefa existir' : feita ? 'feita' : folga ? 'não programada para este dia' : d === 0 ? 'ainda não feita hoje' : 'não feita';
-    dias.push(`<span class="dia-ponto ${estado}" title="${formatarData(dia, true)}: ${legenda}"></span>`);
-  }
-  return `<span class="ultimos-dias" aria-label="Últimos 7 dias">${dias.join('')}</span>`;
+// semana atual, de segunda a domingo: azul = feita, laranja = não feita, branco = ainda não chegou ou não é dia dela
+function htmlSemanaDaTarefa(tarefa) {
+  const hoje = dataISO();
+  const segunda = diasAPartirDeHoje(-((new Date().getDay() + 6) % 7));
+  const dias = DIAS_DA_SEMANA.map((diaDaSemana, i) => {
+    const dia = somarDias(segunda, i);
+    const programada = dia >= tarefa.criadaEm && rotinaNoDia(tarefa, dia);
+    let estado = 'branco';
+    let legenda = !programada ? 'não é dia desta tarefa' : dia > hoje ? 'ainda vai chegar' : 'ainda não feita hoje';
+    if (tarefa.feitas.includes(dia)) [estado, legenda] = ['feito', 'feita'];
+    else if (programada && dia < hoje) [estado, legenda] = ['perdido', 'não feita'];
+    return `<span class="dia-ponto ${estado}" title="${diaDaSemana.curto} ${formatarData(dia, true)}: ${legenda}"></span>`;
+  });
+  return `<span class="ultimos-dias" aria-label="Esta semana, de segunda a domingo">${dias.join('')}</span>`;
 }
 
 const DIAS_UTEIS = [1, 2, 3, 4, 5];
@@ -76,8 +77,7 @@ function diasMarcados(formulario) {
 }
 
 function resumoDosDias(dias) {
-  if (!dias.length) return 'Escolha pelo menos um dia';
-  return dias.length === 7 ? 'Todos os dias' : descricaoDosDias({ dias });
+  return dias.length ? descricaoDosDias({ dias }) : 'Escolha pelo menos um dia';
 }
 
 // sem "dias" na tarefa = todos os dias
@@ -154,7 +154,7 @@ function htmlTarefas(resumo) {
           ${rotinas.map((t) => (t.id === tarefaEmEdicao ? htmlEdicaoDeTarefa(t) : `
             <li>
               <span class="lista-gestao-texto">${escaparHtml(t.titulo)}<br><small>${descricaoDosDias(t)}</small></span>
-              ${htmlUltimosDias(t)}
+              ${htmlSemanaDaTarefa(t)}
               ${botoesDaTarefa(t)}
             </li>`)).join('')}
         </ul>` : ''}
@@ -401,7 +401,7 @@ function iniciar() {
         }
         if (diasParaSalvar(dias)) tarefa.dias = dias;
         else delete tarefa.dias;
-        mudanca = tarefa.dias ? descricaoDosDias(tarefa) : 'todos os dias';
+        mudanca = descricaoDosDias(tarefa);
       } else {
         tarefa.prazo = formulario.prazo.value;
         mudanca = `prazo até ${formatarData(tarefa.prazo, true)}`;

@@ -3,10 +3,10 @@
 const dados = carregarDados();
 salvarDados(dados);
 
-function cartaoDeConta({ perfil, id, nome, detalhe, extra, classeAvatar }) {
+function cartaoDeConta({ perfil, id, nome, foto, detalhe, extra, classeAvatar }) {
   return `
     <button class="conta" data-perfil="${perfil}" data-id="${id}">
-      <span class="avatar-pequeno ${classeAvatar}">${iniciais(nome)}</span>
+      <span class="avatar-pequeno ${classeAvatar}">${conteudoDoAvatar({ nome, foto })}</span>
       <span class="conta-textos">
         <strong>${nome}</strong>
         <span>${detalhe}</span>
@@ -17,7 +17,7 @@ function cartaoDeConta({ perfil, id, nome, detalhe, extra, classeAvatar }) {
 }
 
 document.getElementById('contaGestor').innerHTML = cartaoDeConta({
-  perfil: 'gestor', id: ID_GESTOR, nome: dados.gestor.nome, detalhe: dados.gestor.cargo,
+  perfil: 'gestor', id: ID_GESTOR, nome: dados.gestor.nome, foto: dados.gestor.foto, detalhe: dados.gestor.cargo,
   extra: '<span class="selo selo-gestor">Painel do gestor</span>', classeAvatar: 'cor-gestor',
 });
 
@@ -26,7 +26,7 @@ document.getElementById('contasColaboradores').innerHTML = dados.colaboradores.m
   const selo = situacao.concluido
     ? '<span class="selo selo-sucesso">Programa concluído</span>'
     : `<span class="selo selo-neutro">Dia ${situacao.dia} · ${situacao.fase.nome}</span>`;
-  return cartaoDeConta({ perfil: 'colaborador', id: pessoa.id, nome: pessoa.nome, detalhe: pessoa.cargo, extra: selo, classeAvatar: `cor-${indice % 6}` });
+  return cartaoDeConta({ perfil: 'colaborador', id: pessoa.id, nome: pessoa.nome, foto: pessoa.foto, detalhe: pessoa.cargo, extra: selo, classeAvatar: `cor-${indice % 6}` });
 }).join('');
 
 renderizarIcones();

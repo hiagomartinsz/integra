@@ -75,9 +75,36 @@ function anelProgresso(valor, { tamanho = 40, espessura = 4, classe = '', texto 
     </div>`;
 }
 
+// foto de perfil, se a pessoa enviou, ou as iniciais
+function conteudoDoAvatar(pessoa) {
+  return pessoa.foto ? `<img src="${pessoa.foto}" alt="">` : iniciais(pessoa.nome);
+}
+
 function avatarPequeno(dados, pessoa) {
   const indice = dados.colaboradores.findIndex((p) => p.id === pessoa.id);
-  return `<span class="avatar-pequeno cor-${Math.max(indice, 0) % 6}">${iniciais(pessoa.nome)}</span>`;
+  return `<span class="avatar-pequeno cor-${Math.max(indice, 0) % 6}">${conteudoDoAvatar(pessoa)}</span>`;
+}
+
+// recorta a imagem em quadrado e reduz, pra caber no localStorage (vira um data: url de poucos KB)
+function reduzirImagem(arquivo, tamanho = 160) {
+  return new Promise((resolver, rejeitar) => {
+    const imagem = new Image();
+    const endereco = URL.createObjectURL(arquivo);
+    imagem.onload = () => {
+      const lado = Math.min(imagem.width, imagem.height);
+      const tela = document.createElement('canvas');
+      tela.width = tamanho;
+      tela.height = tamanho;
+      tela.getContext('2d').drawImage(imagem, (imagem.width - lado) / 2, (imagem.height - lado) / 2, lado, lado, 0, 0, tamanho, tamanho);
+      URL.revokeObjectURL(endereco);
+      resolver(tela.toDataURL('image/jpeg', 0.85));
+    };
+    imagem.onerror = () => {
+      URL.revokeObjectURL(endereco);
+      rejeitar(new Error('imagem inválida'));
+    };
+    imagem.src = endereco;
+  });
 }
 
 // posição (em %) do marcador de hoje: as fases têm a mesma largura,

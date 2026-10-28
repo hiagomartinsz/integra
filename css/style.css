@@ -139,6 +139,12 @@ fieldset { border: 0; }
   border: 2px solid rgba(255, 255, 255, 0.7);
 }
 .avatar-grande { width: 56px; height: 56px; font-size: 19px; border-color: var(--borda); }
+.avatar, .avatar-pequeno { overflow: hidden; }
+.avatar img, .avatar-pequeno img { width: 100%; height: 100%; object-fit: cover; }
+.perfil-editavel { position: relative; cursor: pointer; }
+.avatar-camera { position: absolute; left: 26px; top: 26px; width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; color: var(--azul); background: #fff; box-shadow: var(--sombra); }
+.avatar-camera .icone { width: 12px; height: 12px; }
+.perfil-editavel:hover .avatar { border-color: #fff; }
 
 .app { display: flex; min-height: calc(100vh - var(--altura-topo)); }
 
@@ -1025,9 +1031,8 @@ a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
 .ultimos-dias { display: flex; gap: 4px; }
 .dia-ponto { width: 12px; height: 12px; border-radius: 4px; background: #EEF1F5; }
 .dia-ponto.feito { background: var(--turquesa); }
-.dia-ponto.perdido { background: var(--laranja-claro); border: 1px solid #FDBA74; }
-.dia-ponto.hoje { background: #fff; border: 1.5px dashed var(--borda-forte); }
-.dia-ponto.folga { background: transparent; border: 1px solid var(--borda); }
+.dia-ponto.perdido { background: var(--laranja); }
+.dia-ponto.branco { background: #fff; border: 1px solid var(--borda-forte); }
 
 .lista-checkins li { display: flex; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--borda); }
 .lista-checkins li:last-child { border-bottom: 0; }
@@ -1203,6 +1208,9 @@ a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
   .topo-acoes { gap: 4px; }
   .perfil-textos, .pilula-topo, .divisor-vertical, .nivel-texto { display: none; }
   .perfil { display: none; }
+  .perfil.perfil-editavel { display: flex; }
+  .perfil-editavel .avatar { width: 34px; height: 34px; font-size: 12px; }
+  .perfil-editavel .avatar-camera { left: 20px; top: 20px; width: 18px; height: 18px; }
   .menu-lateral { display: none; }
   .nav-inferior { display: flex; }
   .conteudo { padding: 20px 16px 110px; }

@@ -62,13 +62,15 @@ function montarLayout({ dados, perfil, pagina, pessoa = null }) {
         <span class="contador" data-contador-notificacoes hidden></span>
       </button>
       <span class="divisor-vertical"></span>
-      <div class="perfil">
-        <span class="avatar">${iniciais(usuario.nome)}</span>
+      <label class="perfil perfil-editavel" title="Trocar foto de perfil">
+        <span class="avatar" data-avatar-usuario>${conteudoDoAvatar(usuario)}</span>
+        <span class="avatar-camera">${icone('camera')}</span>
         <div class="perfil-textos">
           <div class="perfil-nome">${usuario.nome}</div>
           <div class="perfil-cargo">${usuario.cargo}</div>
         </div>
-      </div>
+        <input type="file" accept="image/*" data-foto-perfil hidden>
+      </label>
       <button class="btn-icone-topo so-mobile" data-sair aria-label="Sair">${icone('sair')}</button>
     </div>`;
 
@@ -91,6 +93,22 @@ function montarLayout({ dados, perfil, pagina, pessoa = null }) {
       encerrarSessao();
       location.href = 'index.html';
     }
+  });
+
+  // gestor e colaborador trocam a própria foto clicando no avatar do topo
+  topo.addEventListener('change', async (evento) => {
+    const campo = evento.target.closest('[data-foto-perfil]');
+    if (!campo || !campo.files[0]) return;
+    try {
+      usuario.foto = await reduzirImagem(campo.files[0]);
+    } catch {
+      mostrarAviso('Não foi possível usar essa imagem. Tente outra.', 'alerta');
+      return;
+    }
+    salvarDados(dados);
+    topo.querySelector('[data-avatar-usuario]').innerHTML = conteudoDoAvatar(usuario);
+    campo.value = '';
+    mostrarAviso('Foto de perfil atualizada.');
   });
 
   configurarNotificacoes(dados, ehGestor ? ID_GESTOR : pessoa.id);

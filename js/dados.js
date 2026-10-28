@@ -428,6 +428,24 @@ function criarDadosIniciais() {
   };
 }
 
+// fotos de exemplo de alguns colaboradores (os outros ficam com as iniciais)
+// fotos do Unsplash (licença livre): marina 3paKXHWzsDw, carlos zNxOw2JFNKs, rodrigo DItYlc26zVI, fernanda 50TkCaP8M3A
+const FOTOS_DE_EXEMPLO = {
+  marina: 'assets/avatares/marina.jpg',
+  carlos: 'assets/avatares/carlos.jpg',
+  rodrigo: 'assets/avatares/rodrigo.jpg',
+  fernanda: 'assets/avatares/fernanda.jpg',
+};
+
+// não sobrescreve a foto que a pessoa enviou (essas ficam salvas como data:)
+function aplicarFotosDeExemplo(dados) {
+  dados.colaboradores.forEach((pessoa) => {
+    const semFotoPropria = !pessoa.foto || pessoa.foto.startsWith('assets/avatares/');
+    if (semFotoPropria && FOTOS_DE_EXEMPLO[pessoa.id]) pessoa.foto = FOTOS_DE_EXEMPLO[pessoa.id];
+  });
+  return dados;
+}
+
 // salvar e carregar
 
 function carregarDados() {
@@ -448,12 +466,12 @@ function carregarDados() {
       const empresaInicial = criarEmpresaInicial();
       if (dados.empresa && !('guiaOculto' in dados.empresa)) marcarExemplos(dados.empresa, empresaInicial);
       dados.empresa = { ...empresaInicial, ...dados.empresa };
-      return dados;
+      return aplicarFotosDeExemplo(dados);
     }
   } catch (erro) {
     console.warn('Não foi possível ler os dados salvos.', erro);
   }
-  return criarDadosIniciais();
+  return aplicarFotosDeExemplo(criarDadosIniciais());
 }
 
 function salvarDados(dados) {
@@ -599,10 +617,9 @@ function rotinaNoDia(tarefa, dataIso) {
   return tarefa.dias.includes(new Date(dataIso + 'T00:00:00').getDay());
 }
 
-// "Rotina diária" ou, por exemplo, "Seg, Qua e Sex"
+// ex.: "Seg, Qua e Sex" (sem "dias" lista a semana toda)
 function descricaoDosDias(tarefa) {
-  if (!tarefa.dias) return 'Rotina diária';
-  const nomes = DIAS_DA_SEMANA.filter((d) => tarefa.dias.includes(d.numero)).map((d) => d.curto);
+  const nomes = DIAS_DA_SEMANA.filter((d) => !tarefa.dias || tarefa.dias.includes(d.numero)).map((d) => d.curto);
   return nomes.length > 1 ? `${nomes.slice(0, -1).join(', ')} e ${nomes[nomes.length - 1]}` : nomes[0];
 }
 
