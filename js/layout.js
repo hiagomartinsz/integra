@@ -37,7 +37,7 @@ function montarLayout({ dados, perfil, pagina, pessoa = null }) {
   let blocoJornada = '';
   if (!ehGestor) {
     const situacao = situacaoNaJornada(dados, pessoa);
-    const texto = situacao.concluido ? 'Programa concluído' : `Dia ${situacao.dia} de ${situacao.duracao} · ${situacao.fase.nome}`;
+    const texto = situacao.concluido ? 'Programa concluído' : `${textoDoDia(situacao)} · ${situacao.fase.nome}`;
     blocoJornada = `
       <a class="nivel-topo" href="jornada.html" title="Ver minha jornada">
         <span class="nivel-texto">${texto}</span>

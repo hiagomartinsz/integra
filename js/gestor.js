@@ -62,7 +62,7 @@ function htmlTabela(resumos) {
                   </td>
                   <td>
                     <div class="pessoa-nome">${s.concluido ? 'Programa concluído' : s.naoComecou ? `Começa em ${formatarData(pessoa.inicio, true)}` : s.fase.nome}</div>
-                    <div class="celula-progresso">${barraProgresso(s.progresso, 'azul')}<span>${s.concluido ? '' : `dia ${s.dia}`}</span></div>
+                    <div class="celula-progresso">${barraProgresso(s.progresso, 'azul')}<span>${s.concluido ? '' : s.dia >= 1 ? `dia ${s.dia}` : `em ${s.diasParaEntrar} ${s.diasParaEntrar === 1 ? 'dia' : 'dias'}`}</span></div>
                   </td>
                   <td class="texto-suave">${resumo.hojeTotal ? `${resumo.hojeFeitas} de ${resumo.hojeTotal}` : '—'}</td>
                   <td class="texto-suave">${resumo.obrigatoriosTotal ? `${resumo.obrigatoriosFeitos} de ${resumo.obrigatoriosTotal}` : '—'}</td>

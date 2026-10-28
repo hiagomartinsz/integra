@@ -35,7 +35,7 @@ function renderizar() {
     ${fases.map((fase) => {
       const daFase = dados.treinamentos.filter((t) => t.faseId === fase.id);
       return `
-        <h2 class="subtitulo-bloco">Fase ${fase.indice + 1} · ${fase.nome} <small>(${textoDoPeriodo(fase)})</small></h2>
+        <h2 class="subtitulo-bloco">Fase ${fase.numero} · ${fase.nome} <small>(${textoDoPeriodo(fase)})</small></h2>
         ${daFase.length ? `<div class="lista-treinamentos">
           ${daFase.map((t) => {
             const { pessoas, feitos, atrasados } = conclusaoDoTreinamento(t);
@@ -87,7 +87,7 @@ function abrirFormulario() {
       <span>${icone(f.icone)}${f.nome}</span>
     </label>`).join('');
   document.getElementById('faseTreinamento').innerHTML = fasesComPeriodo(dados)
-    .map((f) => `<option value="${f.id}">Fase ${f.indice + 1} · ${f.nome}</option>`).join('');
+    .map((f) => `<option value="${f.id}">Fase ${f.numero} · ${f.nome}</option>`).join('');
   document.getElementById('erroTreinamento').hidden = true;
   atualizarCamposDoFormato();
   document.getElementById('modalTreinamento').showModal();

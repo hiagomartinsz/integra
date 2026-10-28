@@ -1147,6 +1147,12 @@ a.lista-gestao-texto:hover { color: var(--turquesa-escuro); }
   transition: border-color 0.15s, background 0.15s;
 }
 .btn-adicionar-fase:hover { border-color: var(--turquesa); background: var(--turquesa-claro); }
+.btn-adicionar-fase[data-adicionar-fase-zero] { flex-wrap: wrap; margin-bottom: 16px; }
+.btn-adicionar-fase small { flex-basis: 100%; font-size: 12px; font-weight: 500; color: var(--texto-suave); }
+.config-fase-zero { border: 1px dashed var(--turquesa); }
+.config-fase-zero .trilha-numero { color: var(--turquesa-escuro); background: var(--turquesa-claro); }
+.config-fase-aviso { display: flex; align-items: center; gap: 8px; margin-bottom: 12px; font-size: 13px; color: var(--turquesa-escuro); }
+.config-fase-aviso .icone { width: 16px; height: 16px; }
 
 /* entrada (login) */
 .pagina-inicial {

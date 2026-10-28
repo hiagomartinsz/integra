@@ -25,7 +25,7 @@ document.getElementById('contasColaboradores').innerHTML = dados.colaboradores.m
   const situacao = situacaoNaJornada(dados, pessoa);
   const selo = situacao.concluido
     ? '<span class="selo selo-sucesso">Programa concluído</span>'
-    : `<span class="selo selo-neutro">Dia ${situacao.dia} · ${situacao.fase.nome}</span>`;
+    : `<span class="selo selo-neutro">${situacao.dia >= 1 ? `Dia ${situacao.dia}` : 'Antes da entrada'} · ${situacao.fase.nome}</span>`;
   return cartaoDeConta({ perfil: 'colaborador', id: pessoa.id, nome: pessoa.nome, foto: pessoa.foto, detalhe: pessoa.cargo, extra: selo, classeAvatar: `cor-${indice % 6}` });
 }).join('');
 

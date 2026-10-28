@@ -34,11 +34,15 @@ function htmlBanner(situacao) {
     <section class="banner-fase">
       <div class="banner-topo">
         <div>
-          <span class="banner-rotulo">Fase ${situacao.fase.indice + 1} de ${situacao.fases.length} · ${textoDoPeriodo(situacao.fase)}</span>
+          <span class="banner-rotulo">${situacao.preIntegracao
+            ? `Fase 0 · Antes da sua entrada em ${formatarDataExtensa(eu.inicio)}`
+            : `Fase ${situacao.fase.numero} de ${situacao.totalDeFases} · ${textoDoPeriodo(situacao.fase)}`}</span>
           <h1>Olá, ${nome}! Você está em: ${situacao.fase.nome}</h1>
           <p>${situacao.fase.objetivo}</p>
         </div>
-        <div class="banner-dia"><strong>${situacao.dia}º</strong><span>dia de ${situacao.duracao}</span></div>
+        ${situacao.preIntegracao
+          ? `<div class="banner-dia"><strong>${situacao.diasParaEntrar}</strong><span>${situacao.diasParaEntrar === 1 ? 'dia' : 'dias'} para entrar</span></div>`
+          : `<div class="banner-dia"><strong>${situacao.dia}º</strong><span>dia de ${situacao.duracao}</span></div>`}
       </div>
       ${trilhaDeFases(situacao)}
       <div class="banner-rodape">

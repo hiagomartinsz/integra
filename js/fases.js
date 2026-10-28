@@ -2,6 +2,7 @@ const dados = carregarDados();
 const sessao = exigirSessao(dados, 'gestor');
 const pagina = document.getElementById('pagina');
 const DURACAO_RECOMENDADA = 90;
+const MAXIMO_DIAS_FASE_ZERO = 30;
 
 function salvar() {
   salvarDados(dados);
@@ -31,18 +32,21 @@ function htmlResumoDuracao() {
 function htmlFase(fase) {
   const pessoas = pessoasNaFase(fase);
   const treinamentos = dados.treinamentos.filter((t) => t.faseId === fase.id).length;
+  const fasesNormais = dados.fases.filter((f) => !f.pre).length;
+  const podeRemover = fase.pre || fasesNormais > 1;
 
   return `
-    <section class="cartao config-fase" data-fase="${fase.id}">
+    <section class="cartao config-fase ${fase.pre ? 'config-fase-zero' : ''}" data-fase="${fase.id}">
+      ${fase.pre ? `<p class="config-fase-aviso">${icone('calendario')}Fase 0: acontece antes do primeiro dia na empresa e não conta nos ${duracaoDoPrograma(dados)} dias do programa.</p>` : ''}
       <header class="config-fase-topo">
-        <span class="trilha-numero">${fase.indice + 1}</span>
+        <span class="trilha-numero">${fase.numero}</span>
         <div class="config-fase-campos">
           <label class="so-leitor" for="nome-${fase.id}">Nome da fase</label>
           <input id="nome-${fase.id}" class="campo-inline campo-titulo" value="${escaparHtml(fase.nome)}" data-campo="nome">
           <div class="config-duracao">
             <label for="dias-${fase.id}">Duração</label>
-            <input id="dias-${fase.id}" type="number" min="1" max="90" value="${fase.dias}" data-campo="dias">
-            <span>${fase.dias === 1 ? 'dia' : 'dias'} · <strong data-periodo>${textoDoPeriodo(fase)}</strong></span>
+            <input id="dias-${fase.id}" type="number" min="1" max="${fase.pre ? MAXIMO_DIAS_FASE_ZERO : 90}" value="${fase.dias}" data-campo="dias">
+            <span>${fase.pre ? '' : `${fase.dias === 1 ? 'dia' : 'dias'} · `}<strong data-periodo>${textoDoPeriodo(fase)}</strong></span>
           </div>
         </div>
         <div class="trilha-pessoas" title="${pessoas.map((p) => p.nome).join(', ') || 'Ninguém nesta fase agora'}">
@@ -69,7 +73,7 @@ function htmlFase(fase) {
 
       <footer class="config-fase-rodape">
         <a class="link-discreto" href="gestor-treinamentos.html">${icone('livro')}${treinamentos} ${treinamentos === 1 ? 'treinamento liberado' : 'treinamentos liberados'} nesta fase</a>
-        <button class="btn-texto-perigo" data-remover-fase="${fase.id}" ${dados.fases.length > 1 ? '' : 'disabled'}>${icone('lixeira')}Remover fase</button>
+        <button class="btn-texto-perigo" data-remover-fase="${fase.id}" ${podeRemover ? '' : 'disabled'}>${icone('lixeira')}Remover fase</button>
       </footer>
     </section>`;
 }
@@ -84,6 +88,11 @@ function renderizar() {
       <span class="status-salvo" id="statusSalvo">${icone('check')}Alterações salvas automaticamente</span>
     </div>
     ${htmlResumoDuracao()}
+    ${faseZero(dados) ? '' : `
+      <button class="btn-adicionar-fase" data-adicionar-fase-zero>
+        ${icone('mais')}Adicionar fase 0: antes da entrada
+        <small>Para a pessoa conhecer a empresa e fazer treinamentos antes do primeiro dia</small>
+      </button>`}
     ${fasesComPeriodo(dados).map(htmlFase).join('')}
     <button class="btn-adicionar-fase" data-adicionar-fase>${icone('mais')}Adicionar fase</button>`;
 }
@@ -118,7 +127,7 @@ function iniciar() {
       return;
     }
     if (campo === 'dias') {
-      fase.dias = Math.min(90, Math.max(1, Math.round(Number(evento.target.value) || 1)));
+      fase.dias = Math.min(fase.pre ? MAXIMO_DIAS_FASE_ZERO : 90, Math.max(1, Math.round(Number(evento.target.value) || 1)));
       evento.target.value = fase.dias;
       salvar();
       atualizarPeriodos();
@@ -137,6 +146,17 @@ function iniciar() {
   });
 
   pagina.addEventListener('click', (evento) => {
+    if (evento.target.closest('[data-adicionar-fase-zero]')) {
+      dados.fases.unshift({
+        id: novoId('f'), pre: true, nome: 'Antes da entrada', dias: 7,
+        objetivo: 'Dar as boas-vindas, apresentar a empresa e adiantar o que for possível antes do primeiro dia.', modulos: [],
+      });
+      salvar();
+      renderizar();
+      pagina.querySelector('.campo-titulo').select();
+      mostrarAviso('Fase 0 criada. Defina quantos dias antes da entrada ela começa.', 'mais');
+      return;
+    }
     if (evento.target.closest('[data-adicionar-fase]')) {
       dados.fases.push({ id: novoId('f'), nome: `Nova fase ${dados.fases.length + 1}`, dias: 30, objetivo: '', modulos: [] });
       salvar();
@@ -149,7 +169,9 @@ function iniciar() {
     const remover = evento.target.closest('[data-remover-fase]');
     if (remover && !remover.disabled) {
       const indice = dados.fases.findIndex((f) => f.id === remover.dataset.removerFase);
-      const destino = dados.fases[indice - 1] || dados.fases[indice + 1];
+      // treinamentos nunca vão para a fase 0: ela pode nem acontecer para quem já entrou
+      const vizinhas = [dados.fases[indice - 1], dados.fases[indice + 1]].filter((f) => f && !f.pre);
+      const destino = vizinhas[0];
       // treinamentos da fase removida passam para a fase vizinha
       dados.treinamentos.forEach((t) => { if (t.faseId === remover.dataset.removerFase) t.faseId = destino.id; });
       dados.fases.splice(indice, 1);

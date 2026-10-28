@@ -530,21 +530,28 @@ function exigirSessao(dados, perfil) {
 
 // jornada: em que dia e fase a pessoa está
 
-function duracaoDoPrograma(dados) {
-  return dados.fases.reduce((soma, fase) => soma + fase.dias, 0);
+// a fase 0 (pré-integração) é opcional, fica sempre em primeiro e não conta na duração do programa
+function faseZero(dados) {
+  return dados.fases.find((f) => f.pre) || null;
 }
 
-// fases com o dia em que começam e terminam (1 = primeiro dia na empresa)
+function duracaoDoPrograma(dados) {
+  return dados.fases.filter((f) => !f.pre).reduce((soma, fase) => soma + fase.dias, 0);
+}
+
+// fases com o dia em que começam e terminam (1 = primeiro dia na empresa; a fase 0 termina no dia 0)
 function fasesComPeriodo(dados) {
-  let dia = 1;
+  const pre = faseZero(dados);
+  let dia = pre ? 1 - pre.dias : 1;
   return dados.fases.map((fase, indice) => {
-    const periodo = { ...fase, indice, inicioDia: dia, fimDia: dia + fase.dias - 1 };
+    const periodo = { ...fase, indice, numero: pre ? indice : indice + 1, inicioDia: dia, fimDia: dia + fase.dias - 1 };
     dia += fase.dias;
     return periodo;
   });
 }
 
 function textoDoPeriodo(fase) {
+  if (fase.pre) return `${fase.dias} ${fase.dias === 1 ? 'dia' : 'dias'} antes da entrada`;
   return fase.inicioDia === fase.fimDia ? `Dia ${fase.inicioDia}` : `Dias ${fase.inicioDia} a ${fase.fimDia}`;
 }
 
@@ -557,19 +564,29 @@ function situacaoNaJornada(dados, colaborador) {
   const dia = diaNaEmpresa(colaborador);
   const duracao = duracaoDoPrograma(dados);
   const concluido = dia > duracao;
-  const naoComecou = dia < 1;
+  const naoComecou = dia < fases[0].inicioDia; // antes até da fase 0
   const fase = concluido ? fases[fases.length - 1] : fases.find((f) => dia >= f.inicioDia && dia <= f.fimDia) || fases[0];
 
   return {
-    dia: Math.max(dia, 0),
+    dia, // fica zero ou negativo antes da entrada
     duracao,
     concluido,
     naoComecou,
+    preIntegracao: !naoComecou && dia < 1,
+    diasParaEntrar: Math.max(0, 1 - dia),
+    totalDeFases: fases.filter((f) => !f.pre).length,
     fases,
     fase,
     diasRestantesNaFase: concluido ? 0 : fase.fimDia - dia + 1,
     progresso: Math.min(100, Math.max(0, Math.round((Math.min(dia, duracao) / duracao) * 100))),
   };
+}
+
+// "Dia 12 de 90", ou antes da entrada "Faltam 3 dias para o 1º dia"
+function textoDoDia(situacao) {
+  if (situacao.concluido) return 'Programa concluído';
+  if (situacao.dia >= 1) return `Dia ${situacao.dia} de ${situacao.duracao}`;
+  return situacao.diasParaEntrar === 1 ? 'Amanhã é o 1º dia' : `Faltam ${situacao.diasParaEntrar} dias para o 1º dia`;
 }
 
 // módulo ligado na fase atual da pessoa?

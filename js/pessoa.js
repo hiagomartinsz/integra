@@ -25,7 +25,7 @@ function htmlCabecalho(resumo) {
   let texto;
   if (s.concluido) texto = `Concluiu o programa em ${formatarData(somarDias(pessoa.inicio, s.duracao - 1))}`;
   else if (s.naoComecou) texto = `Começa em ${formatarDataExtensa(pessoa.inicio)}`;
-  else texto = `Dia ${s.dia} de ${s.duracao} · ${s.fase.nome}`;
+  else texto = `${textoDoDia(s)} · ${s.fase.nome}`;
 
   return `
     <a class="voltar" href="gestor.html"><span class="seta-voltar">${icone('seta')}</span>Painel</a>

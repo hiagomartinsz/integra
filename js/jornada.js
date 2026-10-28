@@ -15,16 +15,16 @@ function htmlFase(fase, situacao, treinamentos) {
     atual: `<span class="selo selo-andamento">Você está aqui · faltam ${situacao.diasRestantesNaFase} ${situacao.diasRestantesNaFase === 1 ? 'dia' : 'dias'}</span>`,
     futura: `<span class="selo selo-neutro">${icone('calendario')}Começa em ${formatarData(inicio, true)}</span>`,
   };
-  const marcador = status === 'passada' ? icone('check') : status === 'futura' ? icone('cadeado') : fase.indice + 1;
+  const marcador = status === 'passada' ? icone('check') : status === 'futura' ? icone('cadeado') : fase.numero;
   const daFase = treinamentos.filter((t) => t.faseId === fase.id);
 
   return `
-    <li class="etapa ${status}" id="fase-${fase.indice + 1}">
+    <li class="etapa ${status}" id="fase-${fase.numero}">
       <span class="etapa-marcador">${marcador}</span>
       <article class="cartao etapa-cartao">
         <header class="etapa-topo">
           <div>
-            <span class="etapa-periodo">Fase ${fase.indice + 1} · ${textoDoPeriodo(fase)} · ${datas}</span>
+            <span class="etapa-periodo">Fase ${fase.numero} · ${textoDoPeriodo(fase)} · ${datas}</span>
             <h2>${fase.nome}</h2>
           </div>
           ${selos[status]}
@@ -68,9 +68,9 @@ function renderizar() {
     </div>
 
     <section class="resumo-jornada">
-      ${anelProgresso(situacao.progresso, { tamanho: 72, espessura: 7, texto: situacao.concluido ? '✓' : `${situacao.dia}º` })}
+      ${anelProgresso(situacao.progresso, { tamanho: 72, espessura: 7, texto: situacao.concluido ? '✓' : situacao.dia >= 1 ? `${situacao.dia}º` : `${situacao.diasParaEntrar}d` })}
       <div class="resumo-jornada-texto">
-        <span>${situacao.concluido ? 'Programa concluído' : `Dia ${situacao.dia} de ${situacao.duracao}`}</span>
+        <span>${textoDoDia(situacao)}</span>
         <strong>${situacao.concluido ? 'Você completou a integração' : situacao.fase.nome}</strong>
         <p>${situacao.concluido ? 'Parabéns por chegar até aqui!' : situacao.fase.objetivo}</p>
       </div>

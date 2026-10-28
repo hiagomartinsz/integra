@@ -129,7 +129,7 @@ function trilhaDeFases(situacao) {
   return `
     <div class="trilha-fases">
       ${segmentos}
-      ${situacao.concluido || situacao.naoComecou ? '' : `<span class="trilha-hoje" style="left:${posicaoDeHoje(situacao)}%" title="Hoje: dia ${situacao.dia}"></span>`}
+      ${situacao.concluido || situacao.naoComecou ? '' : `<span class="trilha-hoje" style="left:${posicaoDeHoje(situacao)}%" title="Hoje: ${textoDoDia(situacao).toLowerCase()}"></span>`}
     </div>`;
 }
 
